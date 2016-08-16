@@ -1,0 +1,9 @@
+  This bidding porgram is designed for use with files produced by the Carmen system. These files bear no resemblance to the files previously produced by arms and can not be used with revious software.
+
+  The program is provided as an open source project. You are free to use this software without restriction. the source code, written with Delphi is available to anyne who would like add to this project or use it as a basis for a new program as long as the results of their work are published under the same open source philosophy.
+
+    Jack O'Toole
+
+    Updates available at www.bidbook.net84.net
+    Enquities to info@bibook.net.84.net
+     
