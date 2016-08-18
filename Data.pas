@@ -11,7 +11,7 @@ interface
         TrainingAllocated = 3;
         Unlocked          = 4;
 
-        Version           = '2.20';// mar 2016
+        Version           = '2.21';// aug 2016
 
 
 
@@ -122,8 +122,8 @@ interface
       Property BidBlank:boolean read GetBidBlank;
       Property Notes:string read FNotes;
       Property Pointsachieved:integer read GetPoints;
-      procedure Add(sl:TStringlist);
-      procedure Clear;
+      procedure   Add(sl:TStringlist);
+      procedure   Clear;
       constructor Create;
       destructor  Destroy;Override;
       function  IdenticalLine(crew:Tcrew;msg:string):boolean;
@@ -154,11 +154,11 @@ interface
       FCount:integer;
       FAircraftType: string;
       FFilename: string;
-      function GetCrewName(index:integer): string;
-      function GetLeaveHours:string;
+      function  GetCrewName(index:integer): string;
+      function  GetLeaveHours:string;
       procedure StatusNumbers(sl:TStringlist;var nums:array of integer);
       procedure SetAircraftType(const Value: string);
-      function GetBidperiod: string;
+      function  GetBidperiod: string;
     public
       Crews: array of TCrew;
       Property Bidperiod:string read GetBidperiod;
@@ -178,6 +178,7 @@ interface
       Procedure LoadFromfile(fn:string);
       Procedure NamesAlpha(namelist,indexlist:tstringlist;Rank:string;Status:TStatus;filter:integer);
       Procedure NamesSeniority(namelist,indexlist:tstringlist;Rank:string;Status:TStatus;filter:integer);
+      procedure Patternslist(sl:TStringlist);
       function  Preallocatedduties(Index:integer):boolean;
       Procedure Routecodes(sl:TStringlist);
       Procedure SetBidperiod(value:string);
@@ -211,6 +212,7 @@ interface
        Buckets :TBuckets;
        AddBucket :TBucket;
        Status:TStatus;
+       Rank:string;
 
 // ***********************************************************************
 
@@ -678,6 +680,20 @@ begin
   sl.Free;
 end;
 //------------------------------------------------------------------------------
+procedure TDiag.Patternslist(sl: TStringlist);
+// return a sorted list of patterns
+var  i,j:integer;
+
+begin
+  sl.Sorted := true;
+  for I := 0 to Count - 1 do
+    for j := 0 to crews[i].Trips.Count - 1 do
+      if  (crews[i].Trips.Allocs[j].Pattern) <> '' then
+        if (Status.valid( crews[i].CrewD.Status)) then
+          if (crews[i].CrewD.Rank = Rank) or (Rank = 'None') then
+            sl.Add(copy(crews[i].Trips.Allocs[j].Pattern,1,2));
+end;
+//------------------------------------------------------------------------------
 function TDiag.Preallocatedduties(Index:integer): boolean;
 // return true if any preallocated duty exists
 begin
@@ -694,7 +710,9 @@ begin
   for I := 0 to Count - 1 do
     for j := 0 to crews[i].Trips.Count - 1 do
       if  (crews[i].Trips.Allocs[j].RouteCode) <> '' then
-        sl.Add(crews[i].Trips.Allocs[j].RouteCode);
+        if (Status.valid( crews[i].CrewD.Status)) then
+           if (crews[i].CrewD.Rank = Rank) or (Rank = 'None') then
+             sl.Add(crews[i].Trips.Allocs[j].RouteCode);
 end;
 //------------------------------------------------------------------------------
 procedure TDiag.SetAircraftType(const Value: string);

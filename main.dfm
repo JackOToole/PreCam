@@ -45,7 +45,6 @@ object fmMain: TfmMain
         Width = 50
       end>
     OnDrawPanel = sbDrawPanel
-    ExplicitWidth = 1016
   end
   object pc: TPageControl
     Left = 0
@@ -56,11 +55,9 @@ object fmMain: TfmMain
     Align = alClient
     TabOrder = 1
     OnChange = pcChange
-    ExplicitWidth = 1016
     object tsListview: TTabSheet
       Caption = 'List View'
       ImageIndex = 2
-      ExplicitWidth = 1008
       object lblExpiree: TLabel
         Left = 481
         Top = 591
@@ -102,7 +99,6 @@ object fmMain: TfmMain
         TabOrder = 2
         WantReturns = False
         WordWrap = False
-        ExplicitWidth = 879
       end
       object pnlListView: TPanel
         Left = 0
@@ -111,7 +107,6 @@ object fmMain: TfmMain
         Height = 33
         Align = alBottom
         TabOrder = 0
-        ExplicitWidth = 1008
         object Label1: TLabel
           Left = 303
           Top = 10
@@ -271,7 +266,6 @@ object fmMain: TfmMain
     object tsBuckets: TTabSheet
       Caption = 'Buckets'
       ImageIndex = 3
-      ExplicitWidth = 1008
       object Label2: TLabel
         Left = 144
         Top = 40
@@ -406,7 +400,6 @@ object fmMain: TfmMain
     object tsSplitView: TTabSheet
       Caption = 'Split View'
       ImageIndex = 7
-      ExplicitWidth = 1008
       object Splitter2: TSplitter
         Left = 0
         Top = 300
@@ -425,7 +418,6 @@ object fmMain: TfmMain
         ButtonHeight = 23
         ButtonWidth = 87
         TabOrder = 0
-        ExplicitWidth = 1008
         object btnSplitFirst: TBitBtn
           Left = 0
           Top = 0
@@ -550,7 +542,6 @@ object fmMain: TfmMain
         TabOrder = 1
         WantReturns = False
         WordWrap = False
-        ExplicitWidth = 1008
       end
       object rtSplit2: TRichEdit
         Left = 0
@@ -571,14 +562,12 @@ object fmMain: TfmMain
         WantReturns = False
         WordWrap = False
         OnChange = rtSplit2Change
-        ExplicitWidth = 1008
       end
     end
     object tsCompare: TTabSheet
       Caption = 'Compare'
       ImageIndex = 8
       OnContextPopup = tsCompareContextPopup
-      ExplicitWidth = 1008
       object chartLineRating: TChart
         Left = 0
         Top = 0
@@ -592,7 +581,6 @@ object fmMain: TfmMain
         View3D = False
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 1008
         object Series4: TLineSeries
           Marks.ArrowLength = 8
           Marks.BackColor = clLime
@@ -631,7 +619,6 @@ object fmMain: TfmMain
     object tsSummary: TTabSheet
       Caption = 'Summary'
       ImageIndex = 4
-      ExplicitWidth = 1008
       object ToolBar2: TToolBar
         Left = 0
         Top = 0
@@ -639,7 +626,6 @@ object fmMain: TfmMain
         Height = 29
         Caption = 'ToolBar2'
         TabOrder = 0
-        ExplicitWidth = 1008
       end
       object rtSummary: TRichEdit
         Left = 0
@@ -649,17 +635,13 @@ object fmMain: TfmMain
         Align = alClient
         Color = clCream
         TabOrder = 1
-        ExplicitWidth = 1008
       end
     end
     object tsDistribution: TTabSheet
       Caption = 'Distribution'
       ImageIndex = 5
-      ExplicitLeft = -44
-      ExplicitTop = 22
-      ExplicitWidth = 1008
       object chartDistribution: TChart
-        Left = 3
+        Left = 16
         Top = 3
         Width = 823
         Height = 663
@@ -722,6 +704,25 @@ object fmMain: TfmMain
         Caption = 'Days Away'
         TabOrder = 4
         OnClick = btnDaysAwayClick
+      end
+      object LstPatterns: TListBox
+        Left = 1058
+        Top = 96
+        Width = 49
+        Height = 225
+        ItemHeight = 13
+        MultiSelect = True
+        TabOrder = 5
+        OnClick = LstPatternsClick
+      end
+      object btnClearSelectedpatterns: TButton
+        Left = 1058
+        Top = 24
+        Width = 121
+        Height = 25
+        Caption = 'Clear Selected Patterns'
+        TabOrder = 6
+        OnClick = btnClearSelectedpatternsClick
       end
     end
   end

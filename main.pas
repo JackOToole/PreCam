@@ -111,6 +111,8 @@ type
     btnCleaSelectedrRouteCodes: TButton;
     btnWeekendsOff: TButton;
     btnDaysAway: TButton;
+    LstPatterns: TListBox;
+    btnClearSelectedpatterns: TButton;
     procedure FormCreate(Sender: TObject);
     procedure mnuOpenClick(Sender: TObject);
     procedure ListNamesClick(Sender: TObject);
@@ -168,10 +170,12 @@ type
     procedure btnCleaSelectedrRouteCodesClick(Sender: TObject);
     procedure btnWeekendsOffClick(Sender: TObject);
     procedure btnDaysAwayClick(Sender: TObject);
+    procedure LstPatternsClick(Sender: TObject);
+    procedure btnClearSelectedpatternsClick(Sender: TObject);
 
 
   private
-    App_path,FCrew,FNotes,Rank,{Status,}LineType:String;
+    App_path,FCrew,FNotes,{Rank,{Status,}LineType:String;
     PreAllocationMode,Searching:Boolean;
     Filter:integer;
     DiagView,BidsView,NamePointer:Tstringlist;
@@ -179,6 +183,8 @@ type
     Procedure DisplayData;
     function  displayRank:string;
     procedure DistributionDaysaway;
+    function  DistributionCaption:string;
+    procedure DistributionPatterns(sl:Tstringlist);
     procedure DistributionWeekEndsoff;
     procedure DistributionRouteCodes(sl:Tstringlist);
     Procedure LoadDiag(fn:String);
@@ -186,6 +192,7 @@ type
     function  GetCrew: string;
     function  GetNotes: string;
     procedure LoadCategories;
+    Procedure LoadPatterns;
     procedure LoadRouteCodes;
     function  ReadFileinUse:string;
     Procedure ResetBuckets;
@@ -317,6 +324,9 @@ begin
   //if DiagTwo.Count = Diag.Count then
   btnCompareClick(nil);
   DistributionDaysaway;
+  LoadPatterns;
+  LoadRouteCodes;
+
 
 end;
 //------------------------------------------------------------------------------
@@ -328,11 +338,19 @@ begin
     result := Rank;
 end;
 //------------------------------------------------------------------------------
+function TfmMain.DistributionCaption: string;
+// return a string Bp, Aircraft ,Rank
+begin
+  result := 'Bp: ' + Diag.Bidperiod + ' , '+Diag.AirCraftType;
+  if not (Rank = 'None') then
+    result := result +' ,' + Rank;
+end;
+//------------------------------------------------------------------------------
 procedure TfmMain.DistributionDaysaway;
 var i,y,crewNum:integer;
 
 begin
-  chartDistribution.Title.Text.Strings[0] := 'Days Away';
+  chartDistribution.Title.Text.Strings[0] := 'Days Away  - ' + DistributionCaption;
   SeriesDistribution.Clear;
   crewNum := 0;
    for i := 0 to ListNames.Items.Count -1 do// continue through list
@@ -346,20 +364,52 @@ begin
     end;
   end;
 end;
+
+//------------------------------------------------------------------------------
+procedure TfmMain.DistributionPatterns(sl:Tstringlist);
+// sl, passes a list of routecodes
+// for each crew in Diag, for each allocation in the crew trips, check for a matching
+// routecode
+var
+  i,j,k,result,crewNum:integer;
+
+begin
+   chartDistribution.Title.Text.Strings[0] := 'Patterns (' +sl.DelimitedText+
+     ')  - ' + DistributionCaption;
+   SeriesDistribution.Clear;
+   result:= 0;
+   crewNum:= 0;
+  for i := 0 to ListNames.Items.Count -1 do
+  begin
+    if (Rank = Diag.Crews[strtoint(NamePointer[i])].Crewd.Rank) or (Rank = 'None') then
+    inc(crewNum);
+    for j := 0 to Diag.crews[strtoint(NamePointer[i])].trips.count- 1 do
+      begin
+        for k := 0 to sl.Count -1 do
+        begin
+          if sl[k] = copy(Diag.Crews[strtoint(NamePointer[i])].Trips.allocs[j].Pattern,1,2) then
+            inc(result);
+        end;
+    end;
+    SeriesDistribution.AddXY(crewNum,result,'',clHotLight);
+    result := 0;
+  end;
+end;
+
 // -----------------------------------------------------------------------------
 procedure TfmMain.DistributionWeekEndsoff;
 var i,y,crewNum:integer;
     a_status:string;
 
 begin
-    chartDistribution.Title.Text.Strings[0] := 'Week ends Off';
+  chartDistribution.Title.Text.Strings[0] := 'Week ends Off  - ' + DistributionCaption;
   SeriesDistribution.Clear;
   crewNum := 0;
   for i := 0 to ListNames.Items.Count -1 do// continue through list
   begin
     a_status := Diag.Crews[strtoint(NamePointer[i])].CrewD.status;
     if (Status.valid(a_status)) then
-      if (Rank = Diag.Crews[i].Crewd.Rank) or (Rank = 'None')   then
+      if (Rank = Diag.Crews[strtoint(NamePointer[i])].Crewd.Rank) or (Rank = 'None')   then
       begin
         y:= Diag.crews[strtoint(NamePointer[i])].NumberofWeekends;
         inc(crewNum);
@@ -376,8 +426,8 @@ var
   i,j,k,result,crewNum:integer;
 
 begin
-   //chartDistribution.Title := chartDistribution.Title[2];
-   //chartDistribution.Title := rc;
+   chartDistribution.Title.Text.Strings[0] := 'Route Codes (' +sl.DelimitedText+
+     ') - ' + DistributionCaption;
    SeriesDistribution.Clear;
    result:= 0;
    crewNum:= 0;
@@ -961,10 +1011,22 @@ begin
 
   LoadCategories;// retrieve categories to build the View / Status menu
   LoadRouteCodes;// routes codes for distribution page
+  loadPatterns;  // patterns for distribution page
   DistributionDaysAway;
   DisplayData;//apply dat to sgView
   SetStatusText;
 end;
+//------------------------------------------------------------------------------
+procedure TfmMain.LoadPatterns;
+var
+  sl:Tstringlist;
+begin
+  sl:=Tstringlist.create;
+  Diag.Patternslist(sl);
+  LstPatterns.items.Assign(sl);
+  sl.free;
+end;
+
 // ----------------------------------------------------------------------------
 procedure TfmMain.mnuTextBlueClick(Sender: TObject);
 begin
@@ -1114,6 +1176,14 @@ begin
    DistributionWeekEndsoff;
 end;
 
+//------------------------------------------------------------------------------
+procedure TfmMain.btnClearSelectedpatternsClick(Sender: TObject);
+var
+  i:integer;
+begin
+  for i := 0 to LstPatterns.Count - 1 do
+    LstPatterns.Selected[i] := false;
+end;
 //------------------------------------------------------------------------------
 procedure TfmMain.btnCleaSelectedrRouteCodesClick(Sender: TObject);
 var
@@ -1419,6 +1489,22 @@ begin
   sl.free;
 end;
 //------------------------------------------------------------------------------
+procedure TfmMain.LstPatternsClick(Sender: TObject);
+// create a distribution graph for the list of selected patterns
+var
+  sl:Tstringlist;
+  i:integer;
+begin
+  sl:=TStringList.Create;
+  for i := 0 to LstPatterns.Count - 1 do
+    if (LstPatterns.selected[i]) then
+    begin
+      sl.Add(LstPatterns.Items[i]);
+    end;
+  DistributionPatterns(sl);
+  sl.free;
+end;
+//------------------------------------------------------------------------------
 procedure TfmMain.lstRouteCodesClick(Sender: TObject);
 var
   sl:Tstringlist;
@@ -1433,6 +1519,6 @@ begin
   DistributionRouteCodes(sl);
   sl.free;
 end;
-
+//------------------------------------------------------------------------------
 end.
 
